@@ -1,0 +1,5 @@
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\publish\GoTExtractor.pdb
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\publish\av_libglesv2.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\publish\libHarfBuzzSharp.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\publish\libSkiaSharp.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\publish\GoTExtractor.exe

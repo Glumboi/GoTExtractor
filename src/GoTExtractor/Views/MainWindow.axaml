@@ -1,0 +1,90 @@
+<Window
+    Background="#3C3C3C"
+    Icon="/Assets/icon.jpg"
+    Title="GoTExtractor"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="GoTExtractor.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="clr-namespace:GoTExtractor.Views"
+    xmlns:vm="using:GoTExtractor.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Design.DataContext>
+        <!--
+            This only sets the DataContext for the previewer in an IDE,
+            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
+        -->
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Image
+            Height="80"
+            Source="../Assets/banner.jpg"
+            Stretch="UniformToFill" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <Menu HorizontalAlignment="Stretch">
+                    <MenuItem Header="File">
+                        <MenuItem Command="{ReflectionBinding OpenDirectoryCommand}" Header="Open Directory" />
+                        <MenuItem Command="{ReflectionBinding CloseDirectoryCommand}" Header="Close Directory" />
+                    </MenuItem>
+                </Menu>
+            </StackPanel>
+            <StackPanel
+                Grid.Column="1"
+                HorizontalAlignment="Right"
+                Margin="0,2,0,2"
+                Orientation="Horizontal">
+                <Button Command="{ReflectionBinding UnpackPSARCCommand}" Content="Unpack selected PSARC" />
+                <Button
+                    Command="{ReflectionBinding RepackPSARCCommand}"
+                    Content="Repack PSARC from folder"
+                    Margin="4,0,0,0" />
+            </StackPanel>
+        </Grid>
+        <Border Grid.Row="2" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="4" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+                <ScrollViewer>
+                    <TreeView ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" />
+                </ScrollViewer>
+                <GridSplitter
+                    Background="#3a3a3a"
+                    Grid.Column="1"
+                    ResizeDirection="Columns" />
+                <Grid Grid.Column="2" ShowGridLines="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ScrollViewer>
+                        <ListBox Background="#3C3C3C" ItemsSource="{Binding FileInfo}" />
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+
+</Window>

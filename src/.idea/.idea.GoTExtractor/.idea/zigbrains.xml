@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ZLSSettings">
+    <option name="zlsPath" value="D:\ZigLang\zig-windows-x86_64-0.13.0-dev.75+5c9eb4081\zls.exe" />
+  </component>
+  <component name="ZigProjectSettings">
+    <option name="explicitPathToStd" value="D:\ZigLang\zig-windows-x86_64-0.13.0-dev.75+5c9eb4081\lib\std" />
+    <option name="toolchainHomeDirectory" value="D:/ZigLang/zig-windows-x86_64-0.13.0-dev.75+5c9eb4081" />
+  </component>
+</project>

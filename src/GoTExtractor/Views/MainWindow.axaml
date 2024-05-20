@@ -8,6 +8,7 @@
     x:Class="GoTExtractor.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
     xmlns="https://github.com/avaloniaui"
+    xmlns:coreTypes="clr-namespace:GoTExtractor.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="clr-namespace:GoTExtractor.Views"
@@ -33,7 +34,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Image
-            Height="80"
+            Height="90"
             Source="../Assets/banner.jpg"
             Stretch="UniformToFill" />
         <Grid Grid.Row="1">
@@ -54,7 +55,11 @@
                 HorizontalAlignment="Right"
                 Margin="0,2,0,2"
                 Orientation="Horizontal">
-                <Button Command="{ReflectionBinding UnpackPSARCCommand}" Content="Unpack selected PSARC" />
+                <CheckBox Content="Structure preview (can take some time to load)" IsChecked="{ReflectionBinding StructurePreview}" />
+                <Button
+                    Command="{ReflectionBinding UnpackPSARCCommand}"
+                    Content="Unpack selected PSARC"
+                    Margin="4,0,0,0" />
                 <Button
                     Command="{ReflectionBinding RepackPSARCCommand}"
                     Content="Repack PSARC from folder"
@@ -68,19 +73,63 @@
                     <ColumnDefinition Width="4" />
                     <ColumnDefinition Width="3*" />
                 </Grid.ColumnDefinitions>
-                <ScrollViewer>
-                    <TreeView ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" />
-                </ScrollViewer>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontWeight="SemiBold" Padding="5">Archives</TextBlock>
+                    <ScrollViewer Grid.Row="1">
+                        <TreeView ItemsSource="{ReflectionBinding Files}" SelectedItem="{ReflectionBinding SelectedFile}">
+                            <TreeView.ItemTemplate>
+                                <DataTemplate x:DataType="coreTypes:GoTFile">
+                                    <TextBlock Text="{Binding NameWithSize}" />
+                                </DataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </ScrollViewer>
+                </Grid>
                 <GridSplitter
                     Background="#3a3a3a"
                     Grid.Column="1"
                     ResizeDirection="Columns" />
-                <Grid Grid.Column="2" ShowGridLines="True">
+                <Grid Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ScrollViewer>
-                        <ListBox Background="#3C3C3C" ItemsSource="{Binding FileInfo}" />
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock FontWeight="SemiBold" Padding="5">Archive info</TextBlock>
+                        <ScrollViewer Grid.Row="1">
+                            <ListBox Background="#3C3C3C" ItemsSource="{ReflectionBinding FileInfo}" />
+                        </ScrollViewer>
+                    </Grid>
+                    <GridSplitter Background="#3a3a3a" Grid.Row="1" />
+                    <ScrollViewer Grid.Row="2">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock FontWeight="SemiBold" Padding="5">Archive preview (requires Structure preview)</TextBlock>
+                            <ListBox
+                                Background="#3C3C3C"
+                                Grid.Row="1"
+                                ItemsSource="{ReflectionBinding SubFiles}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="coreTypes:GoTFile">
+                                        <TextBlock Text="{Binding NameWithSize}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                        </Grid>
                     </ScrollViewer>
                 </Grid>
             </Grid>

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -10,13 +12,17 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using ByteSizeLib;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
+using GoTExtractor.Core;
 using MsBox.Avalonia;
 
 namespace GoTExtractor.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    private const string unPSARC = "ex\\UnPSARC.exe";
+    private Process _currentUnpackerInstance;
+
+    private const string _unPSARC = "ex\\UnPSARC.exe";
 
     private string _fileLog = String.Empty;
 
@@ -30,36 +36,50 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private string _selectedFile = null;
+    private GoTFile _selectedFile;
 
-    public string SelectedFile
+    public GoTFile SelectedFile
     {
         get => _selectedFile;
         set
         {
             _selectedFile = value;
-
-            string f = $"{CurrentDirectory}\\{value}";
-
-            if (File.Exists(f))
+            if (_selectedFile != null)
             {
-                FileInfo.Clear();
-                var fi = new FileInfo(f);
-                FileInfo.Add($"Name: {fi.Name}");
-                FileInfo.Add($"Directory name: {fi.DirectoryName}");
-                /*using (var md5 = MD5.Create())
+                string f = value.Path;
+
+                if (File.Exists(f))
                 {
-                    using (var stream = File.OpenRead(f))
+                    FileInfo.Clear();
+                    var fi = new FileInfo(f);
+                    FileInfo.Add($"Name: {fi.Name}");
+                    FileInfo.Add($"Directory name: {fi.DirectoryName}");
+                    FileInfo.Add($"Size: {ByteSize.FromBytes(fi.Length).MegaBytes} MB");
+
+                    Task.Run(() =>
                     {
-                        var hash = md5.ComputeHash(stream);
-                        FileInfo.Add($"MD5: {BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}");
+                        FileInfo.Add($"MD5: Loading...");
+
+                        using (var md5 = MD5.Create())
+                        {
+                            using (var stream = File.OpenRead(f))
+                            {
+                                var hash = md5.ComputeHash(stream);
+                                FileInfo.Replace(FileInfo.Last(),
+                                    $"MD5: {BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}");
+                            }
+                        }
+                    });
+
+
+                    if (StructurePreview)
+                    {
+                        Task.Run(UnpackPSARC);
                     }
-                }*/
+                }
 
-                FileInfo.Add($"Size: {ByteSize.FromBytes(fi.Length).MegaBytes} MB");
+                OnPropertyChanged(nameof(SelectedFile));
             }
-
-            OnPropertyChanged(nameof(SelectedFile));
         }
     }
 
@@ -75,10 +95,21 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private ObservableCollection<GoTFile> _subFiles = new();
 
-    private ObservableCollection<string> _files = new();
+    public ObservableCollection<GoTFile> SubFiles
+    {
+        get => _subFiles;
+        set
+        {
+            _subFiles = value;
+            OnPropertyChanged(nameof(FileInfo));
+        }
+    }
 
-    public ObservableCollection<string> Files
+    private ObservableCollection<GoTFile> _files = new();
+
+    public ObservableCollection<GoTFile> Files
     {
         get => _files;
         set
@@ -101,6 +132,18 @@ public class MainWindowViewModel : ViewModelBase
     }
 
 
+    private bool _structurePreview = false;
+
+    public bool StructurePreview
+    {
+        get => _structurePreview;
+        set
+        {
+            _structurePreview = value;
+            OnPropertyChanged(nameof(StructurePreview));
+        }
+    }
+
     private ICommand OpenDirectoryCommand
     {
         get;
@@ -117,13 +160,15 @@ public class MainWindowViewModel : ViewModelBase
             if (result != null)
             {
                 CurrentDirectory = result;
-                Files.Clear();
+                if (Files.Count > 0)
+                    Files.Clear();
+
                 foreach (var file in Directory.GetFiles(result))
                 {
                     if (Path.GetExtension(file) != ".psarc")
                         continue;
 
-                    Files.Add(Path.GetFileName(file));
+                    Files.Add(new GoTFile(file));
                 }
 
                 if (Files.Count < 1)
@@ -143,9 +188,10 @@ public class MainWindowViewModel : ViewModelBase
 
     void CloseDirectory()
     {
-        SelectedFile = String.Empty;
+        SelectedFile = null;
         Files.Clear();
         FileInfo.Clear();
+        SubFiles.Clear();
     }
 
     private ICommand UnpackPSARCCommand
@@ -156,7 +202,7 @@ public class MainWindowViewModel : ViewModelBase
 
     async void UnpackPSARC()
     {
-        if (string.IsNullOrWhiteSpace(_selectedFile))
+        if (string.IsNullOrWhiteSpace(_selectedFile.Path))
         {
             await MessageBoxManager.GetMessageBoxStandard("Error",
                     $"You didn't select a psarc file in the TreeView!")
@@ -164,10 +210,28 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
+        if (StructurePreview)
+        {
+            SubFiles.Clear();
+            string tempDir = Path.GetTempFileName();
+            tempDir = tempDir.Remove(tempDir.LastIndexOf('.'));
+            string command = $"\"{SelectedFile.Path}\" \"{tempDir}\"";
+            Directory.CreateDirectory(tempDir);
+            DoPackerProcess(command, true);
+
+            foreach (var f in Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories))
+            {
+                SubFiles.Add(new GoTFile(f));
+                File.Delete(f);
+            }
+
+            return;
+        }
+
         var result = await GetFolderPickerResult("Select destination folder...");
         if (result != null)
         {
-            string command = $"\"{CurrentDirectory}\\{SelectedFile}\" \"{result}\"";
+            string command = $"\"{SelectedFile}\" \"{result}\"";
             DoPackerProcess(command);
             await MessageBoxManager.GetMessageBoxStandard("Info",
                     $"If no erros occured, the extracted files can be found in {result}!")
@@ -235,14 +299,20 @@ public class MainWindowViewModel : ViewModelBase
         return res;
     }
 
-    void DoPackerProcess(string command)
+    void DoPackerProcess(string command, bool noWindow = false)
     {
-        Process p = new Process();
-        p.StartInfo.UseShellExecute = false;
-        p.StartInfo.FileName = unPSARC;
-        p.StartInfo.Arguments = command;
-        p.Start();
-        p.WaitForExit();
+        if (_currentUnpackerInstance != null)
+        {
+            if (!_currentUnpackerInstance.HasExited) _currentUnpackerInstance.Kill();
+        }
+
+        _currentUnpackerInstance = new Process();
+        _currentUnpackerInstance.StartInfo.UseShellExecute = false;
+        _currentUnpackerInstance.StartInfo.FileName = _unPSARC;
+        _currentUnpackerInstance.StartInfo.Arguments = command;
+        _currentUnpackerInstance.StartInfo.CreateNoWindow = noWindow;
+        _currentUnpackerInstance.Start();
+        _currentUnpackerInstance.WaitForExit();
     }
 
     public MainWindowViewModel()

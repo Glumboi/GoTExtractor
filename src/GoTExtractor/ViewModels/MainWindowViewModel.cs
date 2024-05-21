@@ -74,7 +74,7 @@ public class MainWindowViewModel : ViewModelBase
 
                     if (StructurePreview)
                     {
-                        Task.Run(UnpackPSARC);
+                        Task.Run(LoadStructurePreview);
                     }
                 }
 
@@ -200,16 +200,8 @@ public class MainWindowViewModel : ViewModelBase
         set;
     }
 
-    async void UnpackPSARC()
+    void LoadStructurePreview()
     {
-        if (string.IsNullOrWhiteSpace(_selectedFile.Path))
-        {
-            await MessageBoxManager.GetMessageBoxStandard("Error",
-                    $"You didn't select a psarc file in the TreeView!")
-                .ShowAsync();
-            return;
-        }
-
         if (StructurePreview)
         {
             SubFiles.Clear();
@@ -224,14 +216,24 @@ public class MainWindowViewModel : ViewModelBase
                 SubFiles.Add(new GoTFile(f));
                 File.Delete(f);
             }
+        }
+    }
 
+    async void UnpackPSARC()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedFile.Path))
+        {
+            await MessageBoxManager.GetMessageBoxStandard("Error",
+                    $"You didn't select a psarc file in the TreeView!")
+                .ShowAsync();
             return;
         }
+
 
         var result = await GetFolderPickerResult("Select destination folder...");
         if (result != null)
         {
-            string command = $"\"{SelectedFile}\" \"{result}\"";
+            string command = $"\"{SelectedFile.Path}\" \"{result}\"";
             DoPackerProcess(command);
             await MessageBoxManager.GetMessageBoxStandard("Info",
                     $"If no erros occured, the extracted files can be found in {result}!")

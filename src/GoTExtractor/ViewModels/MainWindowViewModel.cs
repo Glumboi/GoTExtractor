@@ -20,8 +20,6 @@ namespace GoTExtractor.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    private Process _currentUnpackerInstance;
-
     private const string _unPSARC = "ex\\UnPSARC.exe";
 
     private string _fileLog = String.Empty;
@@ -51,20 +49,20 @@ public class MainWindowViewModel : ViewModelBase
                 if (File.Exists(f))
                 {
                     FileInfo.Clear();
-                    var fi = new FileInfo(f);
-                    FileInfo.Add($"Name: {fi.Name}");
-                    FileInfo.Add($"Directory name: {fi.DirectoryName}");
-                    FileInfo.Add($"Size: {ByteSize.FromBytes(fi.Length).MegaBytes} MB");
+                    FileInfo fileInfo = new FileInfo(f);
+                    FileInfo.Add($"Name: {fileInfo.Name}");
+                    FileInfo.Add($"Directory name: {fileInfo.DirectoryName}");
+                    FileInfo.Add($"Size: {ByteSize.FromBytes(fileInfo.Length).MegaBytes} MB");
 
                     Task.Run(() =>
                     {
                         FileInfo.Add($"MD5: Loading...");
 
-                        using (var md5 = MD5.Create())
+                        using (MD5 md5 = MD5.Create())
                         {
-                            using (var stream = File.OpenRead(f))
+                            using (FileStream stream = File.OpenRead(f))
                             {
-                                var hash = md5.ComputeHash(stream);
+                                byte[] hash = md5.ComputeHash(stream);
                                 FileInfo.Replace(FileInfo.Last(),
                                     $"MD5: {BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}");
                             }
@@ -150,7 +148,7 @@ public class MainWindowViewModel : ViewModelBase
         set;
     }
 
-    async void OpenDirectory()
+    private async void OpenDirectory()
     {
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -186,7 +184,7 @@ public class MainWindowViewModel : ViewModelBase
         set;
     }
 
-    void CloseDirectory()
+    private void CloseDirectory()
     {
         SelectedFile = null;
         Files.Clear();
@@ -200,9 +198,9 @@ public class MainWindowViewModel : ViewModelBase
         set;
     }
 
-    async void UnpackPSARC()
+    private async void UnpackPSARC()
     {
-        if (string.IsNullOrWhiteSpace(_selectedFile.Path))
+        if (string.IsNullOrWhiteSpace(_selectedFile?.Path))
         {
             await MessageBoxManager.GetMessageBoxStandard("Error",
                     $"You didn't select a psarc file in the TreeView!")
@@ -215,11 +213,10 @@ public class MainWindowViewModel : ViewModelBase
             SubFiles.Clear();
             string tempDir = Path.GetTempFileName();
             tempDir = tempDir.Remove(tempDir.LastIndexOf('.'));
-            string command = $"\"{SelectedFile.Path}\" \"{tempDir}\"";
             Directory.CreateDirectory(tempDir);
-            DoPackerProcess(command, true);
+            DoPackerProcess(_selectedFile.Path, tempDir, true);
 
-            foreach (var f in Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories))
+            foreach (string f in Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories))
             {
                 SubFiles.Add(new GoTFile(f));
                 File.Delete(f);
@@ -228,11 +225,10 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var result = await GetFolderPickerResult("Select destination folder...");
+        string? result = await GetFolderPickerResult("Select destination folder...");
         if (result != null)
         {
-            string command = $"\"{SelectedFile}\" \"{result}\"";
-            DoPackerProcess(command);
+            DoPackerProcess(_selectedFile.Path, result);
             await MessageBoxManager.GetMessageBoxStandard("Info",
                     $"If no erros occured, the extracted files can be found in {result}!")
                 .ShowAsync();
@@ -245,7 +241,7 @@ public class MainWindowViewModel : ViewModelBase
         set;
     }
 
-    async void RepackPSARC()
+    private async void RepackPSARC()
     {
         var result1 = await GetFolderPickerResult("Select folder to repack...");
         if (result1 != null)
@@ -268,8 +264,7 @@ public class MainWindowViewModel : ViewModelBase
                 string result2 = await dialog.ShowAsync(desktop.MainWindow);
                 if (result2 != null)
                 {
-                    string command = $"\"{result1}\" \"{result2}\"";
-                    DoPackerProcess(command);
+                    DoPackerProcess(result1, result2);
                     await MessageBoxManager.GetMessageBoxStandard("Info",
                             $"If no erros occured, the repacked file can be found as {result2}!")
                         .ShowAsync();
@@ -278,7 +273,7 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    void CreateCommands()
+    private void CreateCommands()
     {
         OpenDirectoryCommand = new RelayCommand(OpenDirectory);
         CloseDirectoryCommand = new RelayCommand(CloseDirectory);
@@ -286,7 +281,7 @@ public class MainWindowViewModel : ViewModelBase
         RepackPSARCCommand = new RelayCommand(RepackPSARC);
     }
 
-    async Task<string?> GetFolderPickerResult(string pickerTitle)
+    private async Task<string?> GetFolderPickerResult(string pickerTitle)
     {
         string? res = null;
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -299,20 +294,18 @@ public class MainWindowViewModel : ViewModelBase
         return res;
     }
 
-    void DoPackerProcess(string command, bool noWindow = false)
+    private void DoPackerProcess(string path1, string path2, bool noWindow = false)
     {
-        if (_currentUnpackerInstance != null)
+        using (Process process = new Process())
         {
-            if (!_currentUnpackerInstance.HasExited) _currentUnpackerInstance.Kill();
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.FileName = _unPSARC;
+            process.StartInfo.ArgumentList.Add(Path.GetFullPath(path1));
+            process.StartInfo.ArgumentList.Add(Path.GetFullPath(path2));
+            process.StartInfo.CreateNoWindow = noWindow;
+            process.Start();
+            process.WaitForExit();
         }
-
-        _currentUnpackerInstance = new Process();
-        _currentUnpackerInstance.StartInfo.UseShellExecute = false;
-        _currentUnpackerInstance.StartInfo.FileName = _unPSARC;
-        _currentUnpackerInstance.StartInfo.Arguments = command;
-        _currentUnpackerInstance.StartInfo.CreateNoWindow = noWindow;
-        _currentUnpackerInstance.Start();
-        _currentUnpackerInstance.WaitForExit();
     }
 
     public MainWindowViewModel()

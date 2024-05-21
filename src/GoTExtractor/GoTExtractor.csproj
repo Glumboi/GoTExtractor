@@ -32,6 +32,63 @@
 
 
     <ItemGroup>
+      <None Update="ex\Gibbed.IO.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\Gibbed.IO.pdb">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\ICSharpCode.SharpZipLib.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\ICSharpCode.SharpZipLib.pdb">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\ICSharpCode.SharpZipLib.xml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\K4os.Compression.LZ4.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\K4os.Compression.LZ4.xml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Buffers.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Buffers.xml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Memory.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Memory.xml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Numerics.Vectors.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Numerics.Vectors.xml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Runtime.CompilerServices.Unsafe.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Runtime.CompilerServices.Unsafe.xml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Threading.Tasks.Extensions.dll">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\System.Threading.Tasks.Extensions.xml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\UnPSARC.pdb">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="ex\UnPSARC.exe.config">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
       <None Update="ex\UnPSARC.exe">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

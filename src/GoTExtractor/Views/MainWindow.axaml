@@ -39,14 +39,19 @@
             Stretch="UniformToFill" />
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <Menu HorizontalAlignment="Stretch">
                     <MenuItem Header="File">
                         <MenuItem Command="{ReflectionBinding OpenDirectoryCommand}" Header="Open Directory" />
                         <MenuItem Command="{ReflectionBinding CloseDirectoryCommand}" Header="Close Directory" />
+                    </MenuItem>
+                    <MenuItem Header="Advanced packing">
+                        <MenuItem Command="{ReflectionBinding RepackLastUnpacksCommand}" Header="Repack all last unpacked" />
+                        <MenuItem Command="{ReflectionBinding DeleteLastUnpackedCommand}" Header="Clear last unpacked list (doesn't delete unpacked files)" />
+                        <MenuItem Command="{ReflectionBinding ViewLastUnpackedCommand}" Header="View last unpacked list" />
                     </MenuItem>
                 </Menu>
             </StackPanel>
@@ -64,6 +69,7 @@
                     Command="{ReflectionBinding RepackPSARCCommand}"
                     Content="Repack PSARC from folder"
                     Margin="4,0,0,0" />
+
             </StackPanel>
         </Grid>
         <Border Grid.Row="2" Padding="10">
@@ -111,26 +117,28 @@
                         </ScrollViewer>
                     </Grid>
                     <GridSplitter Background="#3a3a3a" Grid.Row="1" />
-                    <ScrollViewer Grid.Row="2">
+                    <Grid Grid.Row="2">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <TextBlock FontWeight="SemiBold" Padding="5">Archive preview (requires Structure preview)</TextBlock>
-                            <ListBox
-                                Background="#3C3C3C"
-                                Grid.Row="1"
-                                ItemsSource="{ReflectionBinding SubFiles}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate x:DataType="coreTypes:GoTFile">
-                                        <TextBlock Text="{Binding NameWithSize}" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" Padding="5">Archive preview (requires Structure preview)</TextBlock>
+                                <TextBox IsVisible="False" Text="{Binding SubFileFilter}" />
+                            </StackPanel>
+                            <ScrollViewer Grid.Row="1">
+                                <ListBox Background="#3C3C3C" ItemsSource="{ReflectionBinding SubFiles}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="coreTypes:GoTFile">
+                                            <TextBlock Text="{Binding NameWithSize}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </ScrollViewer>
 
                         </Grid>
-                    </ScrollViewer>
+                    </Grid>
                 </Grid>
             </Grid>
         </Border>

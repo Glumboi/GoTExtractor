@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -15,6 +17,7 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using GoTExtractor.Core;
 using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 
 namespace GoTExtractor.ViewModels;
 
@@ -23,16 +26,18 @@ public class MainWindowViewModel : ViewModelBase
     private Process _currentUnpackerInstance;
 
     private const string _unPSARC = "ex\\UnPSARC.exe";
+    private const string _lastUnpacks = "lastunpacks.txt";
+    private string _lastCratedTempDir = string.Empty;
 
-    private string _fileLog = String.Empty;
+    private string _subFileFilter = string.Empty;
 
-    public string FileLog
+    public string SubFileFilter
     {
-        get => _fileLog;
+        get => _subFileFilter;
         set
         {
-            _fileLog = value;
-            OnPropertyChanged(nameof(FileLog));
+            _subFileFilter = value;
+            OnPropertyChanged(nameof(SubFileFilter));
         }
     }
 
@@ -103,7 +108,7 @@ public class MainWindowViewModel : ViewModelBase
         set
         {
             _subFiles = value;
-            OnPropertyChanged(nameof(FileInfo));
+            OnPropertyChanged(nameof(SubFiles));
         }
     }
 
@@ -180,6 +185,43 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private ICommand RepackLastUnpacksCommand
+    {
+        get;
+        set;
+    }
+
+    void RepackLastUnpacks()
+    {
+        foreach (var f in File.ReadLines(_lastUnpacks))
+        {
+            RepackPSARCEx(f);
+        }
+    }
+
+    private ICommand ViewLastUnpackedCommand
+    {
+        get;
+        set;
+    }
+
+    async void ViewLastUnpacked()
+    {
+        await MessageBoxManager.GetMessageBoxStandard("Last unpacked: ", File.ReadAllText(_lastUnpacks)).ShowAsync();
+    }
+
+    private ICommand DeleteLastUnpackedCommand
+    {
+        get;
+        set;
+    }
+
+    async void DeleteLastUnpacked()
+    {
+        File.Delete(_lastUnpacks);
+        await MessageBoxManager.GetMessageBoxStandard("Info", "Deleted last unpacked list!").ShowAsync();
+    }
+
     private ICommand CloseDirectoryCommand
     {
         get;
@@ -202,20 +244,19 @@ public class MainWindowViewModel : ViewModelBase
 
     void LoadStructurePreview()
     {
-        if (StructurePreview)
+        SubFiles.Clear();
+        var load = new GoTFile("Loading...");
+        SubFiles.Add(load);
+        string tempDir = Path.GetTempFileName();
+        tempDir = tempDir.Remove(tempDir.LastIndexOf('.'));
+        _lastCratedTempDir = tempDir;
+        string command = $"\"{SelectedFile.Path}\" \"{tempDir}\"";
+        Directory.CreateDirectory(tempDir);
+        DoPackerProcess(command, true);
+        SubFiles.Remove(load);
+        foreach (var f in Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories))
         {
-            SubFiles.Clear();
-            string tempDir = Path.GetTempFileName();
-            tempDir = tempDir.Remove(tempDir.LastIndexOf('.'));
-            string command = $"\"{SelectedFile.Path}\" \"{tempDir}\"";
-            Directory.CreateDirectory(tempDir);
-            DoPackerProcess(command, true);
-
-            foreach (var f in Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories))
-            {
-                SubFiles.Add(new GoTFile(f));
-                File.Delete(f);
-            }
+            SubFiles.Add(new GoTFile(f));
         }
     }
 
@@ -233,8 +274,40 @@ public class MainWindowViewModel : ViewModelBase
         var result = await GetFolderPickerResult("Select destination folder...");
         if (result != null)
         {
-            string command = $"\"{SelectedFile.Path}\" \"{result}\"";
-            DoPackerProcess(command);
+            // Use temp files bu unpsarc
+            if (StructurePreview && SubFiles.Count > 1)
+            {
+                foreach (var d in Directory.GetDirectories(_lastCratedTempDir, "*", SearchOption.AllDirectories))
+                {
+                    string newFolder = $"{result}\\{Path.GetFileName(d)}";
+                    Directory.CreateDirectory(newFolder);
+                    foreach (var f in Directory.GetFiles(d, "*", SearchOption.AllDirectories))
+                    {
+                        string newFile = $"{newFolder}\\{Path.GetFileName(f)}";
+                        File.Move(f, newFile);
+                    }
+                }
+
+                foreach (var f in Directory.GetFiles(_lastCratedTempDir, "*", SearchOption.TopDirectoryOnly))
+                {
+                    string newFile = $"{result}\\{Path.GetFileName(f)}";
+                    File.Move(f, newFile);
+                }
+
+                Directory.Delete(_lastCratedTempDir, true);
+            }
+            else
+            {
+                string command = $"\"{SelectedFile.Path}\" \"{result}\"";
+                DoPackerProcess(command);
+            }
+
+            await using (FileStream fs = new FileStream(_lastUnpacks, FileMode.Append))
+            {
+                byte[] file = new UTF8Encoding(true).GetBytes($"{result}\n");
+                fs.Write(file, 0, file.Length);
+            }
+
             await MessageBoxManager.GetMessageBoxStandard("Info",
                     $"If no erros occured, the extracted files can be found in {result}!")
                 .ShowAsync();
@@ -252,33 +325,56 @@ public class MainWindowViewModel : ViewModelBase
         var result1 = await GetFolderPickerResult("Select folder to repack...");
         if (result1 != null)
         {
+            RepackPSARCEx(result1);
+        }
+    }
+
+    async void RepackPSARCEx(string inputFolder, bool askForSave = false)
+    {
+        if (!string.IsNullOrWhiteSpace(inputFolder))
+        {
             string? res = null;
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var dialog = new SaveFileDialog();
-                dialog.Title = "Save file as...";
-
-                List<FileDialogFilter> filters = new List<FileDialogFilter>();
-                FileDialogFilter filter = new FileDialogFilter();
-                List<string> extension = new List<string>();
-                extension.Add("psarc");
-                filter.Extensions = extension;
-                filter.Name = "PSArchive Files";
-                filters.Add(filter);
-                dialog.Filters = filters;
-
-                string result2 = await dialog.ShowAsync(desktop.MainWindow);
-                if (result2 != null)
+                string? saveAs = string.Empty;
+                if (askForSave)
                 {
-                    string command = $"\"{result1}\" \"{result2}\"";
+                    var dialog = new SaveFileDialog();
+                    dialog.Title = "Save file as...";
+                    dialog.InitialFileName = Path.GetFileName(inputFolder);
+
+                    List<FileDialogFilter> filters = new List<FileDialogFilter>();
+                    FileDialogFilter filter = new FileDialogFilter();
+                    List<string> extension = new List<string>();
+                    extension.Add("psarc");
+                    filter.Extensions = extension;
+                    filter.Name = "PSArchive Files";
+                    filters.Add(filter);
+                    dialog.Filters = filters;
+
+                    saveAs = await dialog.ShowAsync(desktop.MainWindow);
+                }
+                else
+                {
+                    string repackDir =
+                        $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\~Repackaged";
+                    Directory.CreateDirectory(repackDir);
+                    saveAs = $"{repackDir}\\{Path.GetFileName(inputFolder)}.psarc";
+                }
+
+                if (saveAs != null)
+                {
+                    string command = $"\"{inputFolder}\" \"{saveAs}\"";
                     DoPackerProcess(command);
+                    if (!askForSave) return;
                     await MessageBoxManager.GetMessageBoxStandard("Info",
-                            $"If no erros occured, the repacked file can be found as {result2}!")
+                            $"If no erros occured, the repacked file can be found as {saveAs}!")
                         .ShowAsync();
                 }
             }
         }
     }
+
 
     void CreateCommands()
     {
@@ -286,6 +382,9 @@ public class MainWindowViewModel : ViewModelBase
         CloseDirectoryCommand = new RelayCommand(CloseDirectory);
         UnpackPSARCCommand = new RelayCommand(UnpackPSARC);
         RepackPSARCCommand = new RelayCommand(RepackPSARC);
+        ViewLastUnpackedCommand = new RelayCommand(ViewLastUnpacked);
+        DeleteLastUnpackedCommand = new RelayCommand(DeleteLastUnpacked);
+        RepackLastUnpacksCommand = new RelayCommand(RepackLastUnpacks);
     }
 
     async Task<string?> GetFolderPickerResult(string pickerTitle)

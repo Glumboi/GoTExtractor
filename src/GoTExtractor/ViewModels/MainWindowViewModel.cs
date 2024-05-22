@@ -207,7 +207,15 @@ public class MainWindowViewModel : ViewModelBase
 
     async void ViewLastUnpacked()
     {
-        await MessageBoxManager.GetMessageBoxStandard("Last unpacked: ", File.ReadAllText(_lastUnpacks)).ShowAsync();
+        if (File.Exists(_lastUnpacks))
+        {
+            await MessageBoxManager.GetMessageBoxStandard("Last unpacked: ", File.ReadAllText(_lastUnpacks))
+                .ShowAsync();
+            return;
+        }
+
+        await MessageBoxManager.GetMessageBoxStandard("Info", "No unpacked files found!")
+            .ShowAsync();
     }
 
     private ICommand DeleteLastUnpackedCommand
@@ -357,7 +365,7 @@ public class MainWindowViewModel : ViewModelBase
                 else
                 {
                     string repackDir =
-                        $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\~Repackaged";
+                        $"{Path.GetFullPath("~Repackaged")}";
                     Directory.CreateDirectory(repackDir);
                     saveAs = $"{repackDir}\\{Path.GetFileName(inputFolder)}.psarc";
                 }

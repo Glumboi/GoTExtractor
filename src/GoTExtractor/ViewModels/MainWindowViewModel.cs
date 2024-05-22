@@ -218,6 +218,36 @@ public class MainWindowViewModel : ViewModelBase
             .ShowAsync();
     }
 
+    private ICommand UnpackAllGameFilesCommand
+    {
+        get;
+        set;
+    }
+
+    async void UnpackAllGameFiles()
+    {
+        if (Files.Count <= 0)
+        {
+            MessageBoxManager.GetMessageBoxStandard("Info", "Please load the game psarc folder first!").ShowAsync();
+            return;
+        }
+
+        string result = await GetFolderPickerResult("Select game extraction location");
+        if (result != null)
+        {
+            foreach (var f in Files)
+            {
+                string outP = $"{result}\\{f.Name[..f.Name.LastIndexOf('.')]}";
+                UnpackPSARCEx(outP, f.Path);
+            }
+
+            MessageBoxManager.GetMessageBoxStandard("Info", $"Extracted game files to: {result}").ShowAsync();
+            return;
+        }
+
+        MessageBoxManager.GetMessageBoxStandard("Info", "Path is not found!").ShowAsync();
+    }
+
     private ICommand DeleteLastUnpackedCommand
     {
         get;
@@ -306,19 +336,28 @@ public class MainWindowViewModel : ViewModelBase
             }
             else
             {
-                string command = $"\"{SelectedFile.Path}\" \"{result}\"";
-                DoPackerProcess(command);
-            }
-
-            await using (FileStream fs = new FileStream(_lastUnpacks, FileMode.Append))
-            {
-                byte[] file = new UTF8Encoding(true).GetBytes($"{result}\n");
-                fs.Write(file, 0, file.Length);
+                UnpackPSARCEx(result, SelectedFile.Path);
             }
 
             await MessageBoxManager.GetMessageBoxStandard("Info",
                     $"If no erros occured, the extracted files can be found in {result}!")
                 .ShowAsync();
+        }
+    }
+
+    async void UnpackPSARCEx(string outPath, string targetFile)
+    {
+        if (outPath != null)
+        {
+            // Use temp files bu unpsarc
+            string command = $"\"{targetFile}\" \"{outPath}\"";
+            DoPackerProcess(command);
+
+            await using (FileStream fs = new FileStream(_lastUnpacks, FileMode.Append))
+            {
+                byte[] file = new UTF8Encoding(true).GetBytes($"{outPath}\n");
+                fs.Write(file, 0, file.Length);
+            }
         }
     }
 
@@ -393,6 +432,7 @@ public class MainWindowViewModel : ViewModelBase
         ViewLastUnpackedCommand = new RelayCommand(ViewLastUnpacked);
         DeleteLastUnpackedCommand = new RelayCommand(DeleteLastUnpacked);
         RepackLastUnpacksCommand = new RelayCommand(RepackLastUnpacks);
+        UnpackAllGameFilesCommand = new RelayCommand(UnpackAllGameFiles);
     }
 
     async Task<string?> GetFolderPickerResult(string pickerTitle)

@@ -52,6 +52,7 @@
                         <MenuItem Command="{ReflectionBinding RepackLastUnpacksCommand}" Header="Repack all last unpacked" />
                         <MenuItem Command="{ReflectionBinding DeleteLastUnpackedCommand}" Header="Clear last unpacked list (doesn't delete unpacked files)" />
                         <MenuItem Command="{ReflectionBinding ViewLastUnpackedCommand}" Header="View last unpacked list" />
+                        <MenuItem Command="{ReflectionBinding UnpackAllGameFilesCommand}" Header="Unpack all game files (could take more than 65 GB of space)" />
                     </MenuItem>
                 </Menu>
             </StackPanel>

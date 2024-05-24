@@ -5,21 +5,6 @@ namespace GoTExtractor.Core;
 
 public class GoTFile
 {
-    public string Path
-    {
-        get;
-    }
-
-    public string Name
-    {
-        get;
-    }
-
-    public string NameWithSize
-    {
-        get;
-    }
-
     public GoTFile(string path)
     {
         Path = path;
@@ -33,6 +18,21 @@ public class GoTFile
         }
 
         Name = System.IO.Path.GetFileName(path);
-        NameWithSize = $"{Name} : {ByteSize.FromBytes(new FileInfo(path).Length).MegaBytes} MB";
+        NameWithSize = $"{Name} : {string.Format("{0:0.##}",ByteSize.FromBytes(new FileInfo(path).Length).MegaBytes)} MB";
+    }
+
+    public string Path
+    {
+        get;
+    }
+
+    public string Name
+    {
+        get;
+    }
+
+    public string NameWithSize
+    {
+        get;
     }
 }

@@ -16,6 +16,7 @@ using ByteSizeLib;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using GoTExtractor.Core;
+using GoTExtractor.Views;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 
@@ -37,6 +38,8 @@ public class MainWindowViewModel : ViewModelBase
         set
         {
             _subFileFilter = value;
+
+
             OnPropertyChanged(nameof(SubFileFilter));
         }
     }
@@ -55,7 +58,10 @@ public class MainWindowViewModel : ViewModelBase
 
                 if (File.Exists(f))
                 {
+                    ClearLastTempFiles();
+
                     FileInfo.Clear();
+                    SubFiles.Clear();
                     var fi = new FileInfo(f);
                     FileInfo.Add($"Name: {fi.Name}");
                     FileInfo.Add($"Directory name: {fi.DirectoryName}");
@@ -282,16 +288,27 @@ public class MainWindowViewModel : ViewModelBase
 
     void LoadStructurePreview()
     {
-        SubFiles.Clear();
         var load = new GoTFile("Loading...");
+
+        SubFiles.Clear();
         SubFiles.Add(load);
+
         string tempDir = Path.GetTempFileName();
         tempDir = tempDir.Remove(tempDir.LastIndexOf('.'));
         _lastCratedTempDir = tempDir;
         string command = $"\"{SelectedFile.Path}\" \"{tempDir}\"";
+
         Directory.CreateDirectory(tempDir);
+
         DoPackerProcess(command, true);
+
         SubFiles.Remove(load);
+
+        if (!Directory.Exists(tempDir))
+        {
+            Directory.CreateDirectory(tempDir);
+        }
+
         foreach (var f in Directory.GetFiles(tempDir, "*", SearchOption.AllDirectories))
         {
             SubFiles.Add(new GoTFile(f));
@@ -308,7 +325,6 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-
         var result = await GetFolderPickerResult("Select destination folder...");
         if (result != null)
         {
@@ -322,17 +338,17 @@ public class MainWindowViewModel : ViewModelBase
                     foreach (var f in Directory.GetFiles(d, "*", SearchOption.AllDirectories))
                     {
                         string newFile = $"{newFolder}\\{Path.GetFileName(f)}";
-                        File.Move(f, newFile);
+                        File.Copy(f, newFile);
                     }
                 }
 
                 foreach (var f in Directory.GetFiles(_lastCratedTempDir, "*", SearchOption.TopDirectoryOnly))
                 {
                     string newFile = $"{result}\\{Path.GetFileName(f)}";
-                    File.Move(f, newFile);
+                    File.Copy(f, newFile);
                 }
 
-                Directory.Delete(_lastCratedTempDir, true);
+                ClearLastTempFiles();
             }
             else
             {
@@ -422,6 +438,22 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private ICommand OpenSubFileInExplorerCommand
+    {
+        get;
+        set;
+    }
+
+    async void OpenSubFileInExplorer()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            Process.Start("explorer.exe", SelectedFile.Path);
+            return;
+        }
+
+        await UnsupportedFeature();
+    }
 
     void CreateCommands()
     {
@@ -433,6 +465,13 @@ public class MainWindowViewModel : ViewModelBase
         DeleteLastUnpackedCommand = new RelayCommand(DeleteLastUnpacked);
         RepackLastUnpacksCommand = new RelayCommand(RepackLastUnpacks);
         UnpackAllGameFilesCommand = new RelayCommand(UnpackAllGameFiles);
+        //OpenSubFileInExplorerCommand = new RelayCommand(OpenSubFileInExplorer);
+    }
+
+    async Task UnsupportedFeature()
+    {
+        await MessageBoxManager.GetMessageBoxStandard("Info", "Your platform doesn't support this feature!")
+            .ShowAsync();
     }
 
     async Task<string?> GetFolderPickerResult(string pickerTitle)
@@ -462,6 +501,12 @@ public class MainWindowViewModel : ViewModelBase
         _currentUnpackerInstance.StartInfo.CreateNoWindow = noWindow;
         _currentUnpackerInstance.Start();
         _currentUnpackerInstance.WaitForExit();
+    }
+
+    void ClearLastTempFiles()
+    {
+        if (Directory.Exists(_lastCratedTempDir))
+            Directory.Delete(_lastCratedTempDir, true);
     }
 
     public MainWindowViewModel()

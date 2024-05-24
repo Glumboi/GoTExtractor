@@ -1,6 +1,7 @@
 <Window
     Background="#3C3C3C"
     Icon="/Assets/icon.jpg"
+    Loaded="Control_OnLoaded"
     Title="GoTExtractor"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -87,7 +88,10 @@
                     </Grid.RowDefinitions>
                     <TextBlock FontWeight="SemiBold" Padding="5">Archives</TextBlock>
                     <ScrollViewer Grid.Row="1">
-                        <TreeView ItemsSource="{ReflectionBinding Files}" SelectedItem="{ReflectionBinding SelectedFile}">
+                        <TreeView
+                            ItemsSource="{ReflectionBinding Files}"
+                            Margin="0,0,6,0"
+                            SelectedItem="{ReflectionBinding SelectedFile}">
                             <TreeView.ItemTemplate>
                                 <DataTemplate x:DataType="coreTypes:GoTFile">
                                     <TextBlock Text="{Binding NameWithSize}" />
@@ -114,7 +118,10 @@
                         </Grid.RowDefinitions>
                         <TextBlock FontWeight="SemiBold" Padding="5">Archive info</TextBlock>
                         <ScrollViewer Grid.Row="1">
-                            <ListBox Background="#3C3C3C" ItemsSource="{ReflectionBinding FileInfo}" />
+                            <ListBox
+                                Background="#3C3C3C"
+                                ItemsSource="{ReflectionBinding FileInfo}"
+                                Margin="0,0,6,0" />
                         </ScrollViewer>
                     </Grid>
                     <GridSplitter Background="#3a3a3a" Grid.Row="1" />
@@ -129,10 +136,26 @@
                                 <TextBox IsVisible="False" Text="{Binding SubFileFilter}" />
                             </StackPanel>
                             <ScrollViewer Grid.Row="1">
-                                <ListBox Background="#3C3C3C" ItemsSource="{ReflectionBinding SubFiles}">
+                                <ListBox
+                                    Background="#3C3C3C"
+                                    ItemsSource="{ReflectionBinding SubFiles}"
+                                    Margin="0,0,6,0"
+                                    x:Name="Subfiles_ListBox">
                                     <ListBox.ItemTemplate>
-                                        <DataTemplate x:DataType="coreTypes:GoTFile">
-                                            <TextBlock Text="{Binding NameWithSize}" />
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding NameWithSize}" x:DataType="coreTypes:GoTFile" />
+                                                <Button
+                                                    Command="{ReflectionBinding OpenSubFileInExplorerCommand}"
+                                                    Content="Open in explorer"
+                                                    Grid.Column="1"
+                                                    IsVisible="False"
+                                                    x:DataType="vm:MainWindowViewModel" />
+                                            </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>

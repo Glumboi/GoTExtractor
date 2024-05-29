@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "JZNiJwTvzjlFJjC2wwS+9Xr4G2qFDOit83GMW4Y05RUFJFwQ8EyK2fYaTS3h+FOboMH92SqKCHVAxriDpwuT1g==",
+  "dgSpecHash": "46TLmKNa3argxmzHdZc22N+nq8kXNR7Rt01ZL5iqJNb93bQ9h8wEC4ugWZh+HYh1RAIhh/2/7jixC0lqCSgPUA==",
   "success": true,
   "projectFilePath": "F:\\visual studio\\repos2\\GoTExtractor\\GoTExtractor\\GoTExtractor.csproj",
   "expectedPackageFiles": [
@@ -34,6 +34,9 @@
     "C:\\Users\\merli\\.nuget\\packages\\microsoft.net.illink.tasks\\7.0.100-1.23211.1\\microsoft.net.illink.tasks.7.0.100-1.23211.1.nupkg.sha512",
     "C:\\Users\\merli\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\merli\\.nuget\\packages\\reactiveui\\18.3.1\\reactiveui.18.3.1.nupkg.sha512",
+    "C:\\Users\\merli\\.nuget\\packages\\serilog\\4.0.0-dev-02195\\serilog.4.0.0-dev-02195.nupkg.sha512",
+    "C:\\Users\\merli\\.nuget\\packages\\serilog.sinks.console\\5.1.0-dev-00943\\serilog.sinks.console.5.1.0-dev-00943.nupkg.sha512",
+    "C:\\Users\\merli\\.nuget\\packages\\serilog.sinks.file\\5.0.1-dev-00972\\serilog.sinks.file.5.0.1-dev-00972.nupkg.sha512",
     "C:\\Users\\merli\\.nuget\\packages\\skiasharp\\2.88.6\\skiasharp.2.88.6.nupkg.sha512",
     "C:\\Users\\merli\\.nuget\\packages\\skiasharp.nativeassets.linux\\2.88.6\\skiasharp.nativeassets.linux.2.88.6.nupkg.sha512",
     "C:\\Users\\merli\\.nuget\\packages\\skiasharp.nativeassets.macos\\2.88.6\\skiasharp.nativeassets.macos.2.88.6.nupkg.sha512",

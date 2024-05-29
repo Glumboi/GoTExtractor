@@ -20,5 +20,8 @@ build_property.EnableGeneratedComInterfaceComImportInterop =
 [F:/visual studio/repos2/GoTExtractor/GoTExtractor/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[F:/visual studio/repos2/GoTExtractor/GoTExtractor/LegacyPatternWindows/ModMerger.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [F:/visual studio/repos2/GoTExtractor/GoTExtractor/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

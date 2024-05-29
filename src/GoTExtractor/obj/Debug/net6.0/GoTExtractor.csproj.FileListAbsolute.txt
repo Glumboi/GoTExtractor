@@ -141,3 +141,6 @@ F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Debug\net6.0\Markdown.Aval
 F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Debug\net6.0\MsBox.Avalonia.dll
 F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Debug\net6.0\ByteSize.dll
 F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Debug\net6.0\ex\UnPSARC.exe
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Debug\net6.0\Serilog.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Debug\net6.0\Serilog.Sinks.Console.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Debug\net6.0\Serilog.Sinks.File.dll

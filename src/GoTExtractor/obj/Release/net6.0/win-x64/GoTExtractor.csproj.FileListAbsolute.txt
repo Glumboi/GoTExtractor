@@ -61,3 +61,6 @@ F:\visual studio\repos2\GoTExtractor\GoTExtractor\obj\Release\net6.0\win-x64\GoT
 F:\visual studio\repos2\GoTExtractor\GoTExtractor\obj\Release\net6.0\win-x64\GoTExtra.7AC8EC59.Up2Date
 F:\visual studio\repos2\GoTExtractor\GoTExtractor\obj\Release\net6.0\win-x64\GoTExtractor.genruntimeconfig.cache
 F:\visual studio\repos2\GoTExtractor\GoTExtractor\obj\Release\net6.0\win-x64\ref\GoTExtractor.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\Serilog.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\Serilog.Sinks.Console.dll
+F:\visual studio\repos2\GoTExtractor\GoTExtractor\bin\Release\net6.0\win-x64\Serilog.Sinks.File.dll

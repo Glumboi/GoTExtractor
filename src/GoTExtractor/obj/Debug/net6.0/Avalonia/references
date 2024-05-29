@@ -44,6 +44,9 @@ C:\Users\merli\.nuget\packages\messagebox.avalonia\3.1.5.1\lib\netstandard2.0\Ms
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\6.0.28\ref\net6.0\mscorlib.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\6.0.28\ref\net6.0\netstandard.dll
 C:\Users\merli\.nuget\packages\reactiveui\18.3.1\lib\net6.0\ReactiveUI.dll
+C:\Users\merli\.nuget\packages\serilog\4.0.0-dev-02195\lib\net6.0\Serilog.dll
+C:\Users\merli\.nuget\packages\serilog.sinks.console\5.1.0-dev-00943\lib\net6.0\Serilog.Sinks.Console.dll
+C:\Users\merli\.nuget\packages\serilog.sinks.file\5.0.1-dev-00972\lib\net6.0\Serilog.Sinks.File.dll
 C:\Users\merli\.nuget\packages\skiasharp\2.88.6\lib\net6.0\SkiaSharp.dll
 C:\Users\merli\.nuget\packages\splat\14.4.1\lib\net6.0\Splat.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\6.0.28\ref\net6.0\System.AppContext.dll

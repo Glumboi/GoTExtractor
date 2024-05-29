@@ -16,6 +16,7 @@ using ByteSizeLib;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using GoTExtractor.Core;
+using GoTExtractor.LegacyPatternWindows;
 using GoTExtractor.Views;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
@@ -143,7 +144,7 @@ public class MainWindowViewModel : ViewModelBase
     }
 
 
-    private bool _structurePreview = false;
+    private bool _structurePreview = true;
 
     public bool StructurePreview
     {
@@ -438,23 +439,6 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private ICommand OpenSubFileInExplorerCommand
-    {
-        get;
-        set;
-    }
-
-    async void OpenSubFileInExplorer()
-    {
-        if (OperatingSystem.IsWindows())
-        {
-            Process.Start("explorer.exe", SelectedFile.Path);
-            return;
-        }
-
-        await UnsupportedFeature();
-    }
-
     void CreateCommands()
     {
         OpenDirectoryCommand = new RelayCommand(OpenDirectory);
@@ -465,7 +449,6 @@ public class MainWindowViewModel : ViewModelBase
         DeleteLastUnpackedCommand = new RelayCommand(DeleteLastUnpacked);
         RepackLastUnpacksCommand = new RelayCommand(RepackLastUnpacks);
         UnpackAllGameFilesCommand = new RelayCommand(UnpackAllGameFiles);
-        //OpenSubFileInExplorerCommand = new RelayCommand(OpenSubFileInExplorer);
     }
 
     async Task UnsupportedFeature()

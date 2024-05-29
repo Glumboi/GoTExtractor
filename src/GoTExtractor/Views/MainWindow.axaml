@@ -55,6 +55,10 @@
                         <MenuItem Command="{ReflectionBinding ViewLastUnpackedCommand}" Header="View last unpacked list" />
                         <MenuItem Command="{ReflectionBinding UnpackAllGameFilesCommand}" Header="Unpack all game files (could take more than 65 GB of space)" />
                     </MenuItem>
+                    <MenuItem
+                        Click="OpenModMerger_Button_OnClick"
+                        Header="Open ModMerger"
+                        Name="OpenModMerger_Button" />
                 </Menu>
             </StackPanel>
             <StackPanel
@@ -62,7 +66,7 @@
                 HorizontalAlignment="Right"
                 Margin="0,2,0,2"
                 Orientation="Horizontal">
-                <CheckBox Content="Structure preview (can take some time to load)" IsChecked="{ReflectionBinding StructurePreview}" />
+                <CheckBox Content="Advanced mode (can edit mods and show info)" IsChecked="{ReflectionBinding StructurePreview}" />
                 <Button
                     Command="{ReflectionBinding UnpackPSARCCommand}"
                     Content="Unpack selected PSARC"
@@ -132,7 +136,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <StackPanel>
-                                <TextBlock FontWeight="SemiBold" Padding="5">Archive preview (requires Structure preview)</TextBlock>
+                                <TextBlock FontWeight="SemiBold" Padding="5">Archive preview (requires Advanced mode)</TextBlock>
                                 <TextBox IsVisible="False" Text="{Binding SubFileFilter}" />
                             </StackPanel>
                             <ScrollViewer Grid.Row="1">
@@ -149,12 +153,17 @@
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="{Binding NameWithSize}" x:DataType="coreTypes:GoTFile" />
-                                                <Button
-                                                    Command="{ReflectionBinding OpenSubFileInExplorerCommand}"
-                                                    Content="Open in explorer"
-                                                    Grid.Column="1"
-                                                    IsVisible="False"
-                                                    x:DataType="vm:MainWindowViewModel" />
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                    <Button
+                                                        Command="{ReflectionBinding RemoveFileCommand}"
+                                                        Content="-"
+                                                        IsVisible="True"
+                                                        Margin="0,0,4,0" />
+                                                    <Button
+                                                        Command="{ReflectionBinding OpenSubFileInExplorerCommand}"
+                                                        Content="Open in explorer"
+                                                        IsVisible="True" />
+                                                </StackPanel>
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>

@@ -1,0 +1,70 @@
+﻿<Window
+    Background="#3C3C3C"
+    Height="600"
+    Icon="/Assets/icon.jpg"
+    Title="ModMerger"
+    Width="400"
+    d:DesignHeight="600"
+    d:DesignWidth="400"
+    mc:Ignorable="d"
+    x:Class="GoTExtractor.LegacyPatternWindows.ModMerger"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border Padding="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    Click="Clear_Button_OnClick"
+                    Margin="0,0,6,0"
+                    Name="Clear_Button">
+                    Clear
+                </Button>
+                <Button
+                    Click="Add_Button_OnClick"
+                    Margin="0,0,6,0"
+                    Name="Add_Button">
+                    Add
+                </Button>
+                <Button
+                    Click="AddFromFolder_Button_OnClick"
+                    Margin="0,0,6,0"
+                    Name="AddFromFolder_Button">
+                    Add from folder
+                </Button>
+                <Button Click="Remove_Button_OnClick" Name="Remove_Button">Remove</Button>
+            </StackPanel>
+            <TextBlock
+                FontWeight="SemiBold"
+                Grid.Row="1"
+                Padding="4">
+                Files
+            </TextBlock>
+            <ListBox Grid.Row="2" Name="Files_ListBox" />
+            <StackPanel Grid.Row="3">
+                <TextBlock FontWeight="SemiBold" Padding="4">
+                    Merged mod name
+                </TextBlock>
+                <TextBox
+                    Margin="0,6,0,0"
+                    Name="MergedName_TextBox"
+                    Text="gapack_misc_z_mergedMod" />
+                <Button
+                    Click="Merge_Button_OnClick"
+                    HorizontalAlignment="Stretch"
+                    Margin="0,6,0,0"
+                    Name="Merge_Button">
+                    Merge
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
